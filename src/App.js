@@ -1,73 +1,74 @@
-// src/App.js
 import React, { useState } from 'react';
-import { ChakraProvider, Box, Heading, List, ListItem } from '@chakra-ui/react';
+import { Box, Button, Text, VStack } from '@chakra-ui/react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import uniqueTheme from './theme';
 
-const initialItems = [
-  'Task 1: Design the homepage',
-  'Task 2: Implement the API',
-  'Task 3: Test the application',
-  'Task 4: Deploy to production',
+const initialTasks = [
+  { id: '1', title: 'Task 1', description: 'This is the first task.', priority: 'high' },
+  { id: '2', title: 'Task 2', description: 'This is the second task.', priority: 'medium' },
+  { id: '3', title: 'Task 3', description: 'This is the third task.', priority: 'low' },
+  { id: '4', title: 'Task 4', description: 'This is the fourth task.', priority: 'medium' },
+  { id: '5', title: 'Task 5', description: 'This is the fifth task.', priority: 'high' },
 ];
 
 const App = () => {
-  const [items, setItems] = useState(initialItems);
+  const [tasks, setTasks] = useState(initialTasks);
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
 
-    const reorderedItems = Array.from(items);
-    const [removed] = reorderedItems.splice(result.source.index, 1);
-    reorderedItems.splice(result.destination.index, 0, removed);
+    const reorderedTasks = Array.from(tasks);
+    const [movedTask] = reorderedTasks.splice(result.source.index, 1);
+    reorderedTasks.splice(result.destination.index, 0, movedTask);
 
-    setItems(reorderedItems);
+    setTasks(reorderedTasks);
   };
 
   return (
-    <ChakraProvider theme={uniqueTheme}>
-      <Box p={5} maxWidth="500px" mx="auto" mt={10} bg="gray.100" borderRadius="md" boxShadow="lg">
-        <Heading mb={4} textAlign="center" color="purple.600">
-          Task Manager
-        </Heading>
+    <Box p={5} bgGradient="linear(to-r, teal.500, green.500)" minHeight="100vh">
+      <VStack spacing={4}>
+        <Text fontSize="2xl" fontWeight="bold" color="white">Task Manager</Text>
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="tasks">
+          <Droppable droppableId="droppable">
             {(provided) => (
-              <List
-                {...provided.droppableProps}
+              <Box
                 ref={provided.innerRef}
-                spacing={3}
-                bg="white"
+                {...provided.droppableProps}
+                width="100%"
+                maxW="600px"
+                borderWidth={1}
                 borderRadius="md"
+                bg="white"
+                boxShadow="lg"
                 p={4}
               >
-                {items.map((item, index) => (
-                  <Draggable key={item} draggableId={item} index={index}>
+                {tasks.map((task, index) => (
+                  <Draggable key={task.id} draggableId={task.id} index={index}>
                     {(provided) => (
-                      <ListItem
+                      <Box
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        bg="purple.50"
                         p={4}
+                        mb={2}
+                        borderWidth={1}
                         borderRadius="md"
-                        boxShadow="md"
-                        _hover={{ bg: 'purple.100' }}
-                        color="gray.800"
-                        fontWeight="medium"
+                        bg={task.priority === 'high' ? 'red.100' : task.priority === 'medium' ? 'yellow.100' : 'green.100'}
+                        transition="background 0.3s"
+                        _hover={{ background: 'gray.100' }}
                       >
-                        {item}
-                      </ListItem>
+                        <Text fontWeight="bold">{task.title}</Text>
+                        <Text>{task.description}</Text>
+                      </Box>
                     )}
                   </Draggable>
                 ))}
                 {provided.placeholder}
-              </List>
+              </Box>
             )}
           </Droppable>
         </DragDropContext>
-      </Box>
-    </ChakraProvider>
+      </VStack>
+    </Box>
   );
 };
 
